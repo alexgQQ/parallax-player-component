@@ -4,10 +4,21 @@ function updateStyle(elem) {
 
 	const img = elem.getAttribute("img");
 	const speed = elem.getAttribute("speed");
+	let pause = elem.getAttribute("pause");
+	let hide = elem.getAttribute("hide");
+	let reverse = elem.getAttribute("reverse");
+	const playState = pause ? "paused" : "running";
+	const display = hide ? "hidden" : "visible";
+	const direction = reverse ? "reverse" : "normal";
+
+	// normal direction is from right to left
 	shadow.querySelector("style").textContent = `
 		div {
 			animation: slideshow ${maxTime - speed}s linear infinite;
+			animation-play-state: ${playState};
 			background-image: url(${img});
+			animation-direction: ${direction}; 
+			visibility: ${display};
 			position: absolute;
 			width: 450%;
 			height: 100%;
@@ -39,7 +50,7 @@ class Layer extends HTMLElement {
 	}
 
 	static get observedAttributes() {
-		return ["speed", "img"];
+		return ["speed", "img", "pause", "hide", "reverse"];
 	}
 
 	connectedCallback() {
@@ -57,14 +68,13 @@ class Parallax extends HTMLElement {
 	}
 
 	connectedCallback() {
-		const shadow = this.attachShadow({ mode: "open" });
+		const shadow = this.attachShadow({ mode: "closed" });
 
 		const content = document.createElement('div');
 		content.classList.add("content");
 
 		const parallax = document.createElement('div');
 		parallax.classList.add("parallax-window");
-
 
 		let style = document.createElement("style");
 		style.textContent = `
@@ -86,29 +96,13 @@ class Parallax extends HTMLElement {
 			}
 		`;
 
+		const template = document.createElement("template");
+		template.innerHTML = `<slot></slot>`;
+
 		shadow.appendChild(style);
 		shadow.appendChild(content);
 		content.appendChild(parallax);
-
-		const callback = (mutationList, observer) => {
-			for (const mutation of mutationList) {
-				if (mutation.type === "childList") {
-					let elem = mutation.addedNodes[0];
-					if (elem?.localName === "parallax-layer") {
-						console.log("A child parallax-layer node has been added or removed.");
-						parallax.appendChild(elem);
-					}
-				}
-			}
-		};
-		const config = { attributes: true, childList: true, subtree: true };
-
-		this.observer = new MutationObserver(callback);
-		this.observer.observe(this, config);
-	}
-
-	disconnectedCallback() {
-		this.observer.disconnect();
+		parallax.appendChild(template.content.cloneNode(true));
 	}
 }
 

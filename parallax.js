@@ -11,31 +11,47 @@ function updateStyle(elem) {
 	const display = hide ? "hidden" : "visible";
 	const direction = reverse ? "reverse" : "normal";
 
-	// normal direction is from right to left
-	shadow.querySelector("style").textContent = `
-		div {
-			animation: slideshow ${maxTime - speed}s linear infinite;
-			animation-play-state: ${playState};
-			background-image: url(${img});
-			animation-direction: ${direction}; 
-			visibility: ${display};
-			position: absolute;
-			width: 450%;
-			height: 100%;
-			bottom: 0;
-			background-repeat: repeat-x;
-			background-size: 25% 100%;
-			pointer-events: none;
-		}
-		@keyframes slideshow {
-			0% {
-				transform: translateX(0%);
+	if (speed === "0" || speed === 0) {
+		// normal direction is from right to left
+		shadow.querySelector("style").textContent = `
+			div {
+				background-image: url(${img});
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				background-size: cover;
+				background-position: center;
+				pointer-events: none;
 			}
-			100% {
-				transform: translateX(-50%);
+		`;
+	} else {
+		// normal direction is from right to left
+		shadow.querySelector("style").textContent = `
+			div {
+				animation: slideshow ${maxTime - speed}s linear infinite;
+				animation-play-state: ${playState};
+				background-image: url(${img});
+				animation-direction: ${direction}; 
+				visibility: ${display};
+				position: absolute;
+				width: 450%;
+				height: 100%;
+				bottom: 0;
+				background-repeat: repeat-x;
+				background-size: 25% 100%;
+				pointer-events: none;
 			}
-		}
-	`;
+			@keyframes slideshow {
+				0% {
+					transform: translateX(0%);
+				}
+				100% {
+					transform: translateX(-50%);
+				}
+			}
+		`;
+	}
 }
 
 class Layer extends HTMLElement {
